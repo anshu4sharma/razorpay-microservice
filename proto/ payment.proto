@@ -1,0 +1,57 @@
+syntax = "proto3";
+
+package payment;
+
+option go_package = "./pb";
+
+service PaymentService {
+    rpc CreateOrder (CreateOrderRequest) returns (CreateOrderResponse);
+    rpc VerifyPayment (VerifyPaymentRequest) returns (VerifyPaymentResponse);
+    rpc FetchOrders (FetchOrdersRequest) returns (FetchOrdersResponse); // New RPC
+}
+message CreateOrderRequest {
+    int32 amount = 1;
+    optional string currency = 2;
+    optional string customerEmail = 3;  // Optional field
+    optional string customerContact = 4; // Optional field
+}
+
+message CreateOrderResponse {
+    string order_id = 1;
+    string receipt_id = 2;
+    int32 amount = 3;
+    string currency = 4;
+    int64 created_at = 5;
+}
+
+message VerifyPaymentRequest {
+    string razorpay_order_id = 1;
+    string razorpay_payment_id = 2;
+    string razorpay_signature = 3;
+}
+
+message VerifyPaymentResponse {
+    bool valid = 1;
+    string message = 2;
+}
+
+message FetchOrdersRequest {
+    optional int64 from = 1;          // Timestamp after which orders were created
+    optional int64 to = 2;            // Timestamp before which orders were created
+    int32 count = 3;         // Number of orders to fetch
+    int32 skip = 4;          // Number of orders to skip
+    optional string receipt = 5;      // Orders with the provided receipt value
+}
+
+message FetchOrdersResponse {
+    repeated Order orders = 1;  // List of orders
+}
+
+message Order {
+    string order_id = 1;
+    int32 amount = 2;
+    string currency = 3;
+    string receipt_id = 4;
+    string status = 5;
+    int32 created_at = 6; // Unix timestamp when the order was created
+}
