@@ -12,8 +12,6 @@ service PaymentService {
 message CreateOrderRequest {
     int32 amount = 1;
     optional string currency = 2;
-    optional string customerEmail = 3;  // Optional field
-    optional string customerContact = 4; // Optional field
 }
 
 message CreateOrderResponse {

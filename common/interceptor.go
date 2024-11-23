@@ -2,11 +2,12 @@ package common
 
 import (
 	"context"
-	"errors"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/metadata"
+	"google.golang.org/grpc/status"
 	"os"
 	"sync"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/metadata"
 )
 
 var (
@@ -30,13 +31,19 @@ func AuthUnaryInterceptor(ctx context.Context, req interface{}, info *grpc.Unary
 	// Extract metadata from context
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
-		return nil, errors.New("missing metadata")
+		return nil, status.Error(
+			codes.Unauthenticated,
+			"missing metadata",
+		)
 	}
 
 	// Check for authorization token
 	authHeader, exists := md["authorization"]
 	if !exists || len(authHeader) == 0 || authHeader[0] != validAuthToken {
-		return nil, errors.New("unauthorized: invalid or missing authorization token")
+		return nil, status.Error(
+			codes.Unauthenticated,
+			"unauthorized: invalid or missing authorization token",
+		)
 	}
 
 	// Proceed to the next handler if authorized
